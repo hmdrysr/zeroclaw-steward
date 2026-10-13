@@ -43,7 +43,7 @@ Changelog = "https://github.com/hmdrysr/zeroclaw-steward/blob/main/CHANGELOG.md"
 Releases = "https://github.com/hmdrysr/zeroclaw-steward/releases"
 
 [project.optional-dependencies]
-test = ["pytest>=8"]
+test = ["pytest>=9.1.1"]
 
 [project.scripts]
 steward = "steward.cli:main"
