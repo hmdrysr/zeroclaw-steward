@@ -14,8 +14,8 @@ Thanks for helping. Steward runs on people's own computers, so its rules are str
 ## Set up
 
 ```
-git clone https://github.com/OWNER/REPO.git
-cd REPO/steward
+git clone https://github.com/hmdrysr/zeroclaw-steward.git
+cd zeroclaw-steward/steward
 python3 -m venv .venv && . .venv/bin/activate
 pip install -e '.[test]'
 python -m pytest -q tests

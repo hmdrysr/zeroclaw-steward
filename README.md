@@ -14,7 +14,7 @@ Made for Fedora; also works on Debian/Ubuntu, Arch and openSUSE families. Linux 
 Open a terminal and paste:
 
 ```
-curl -fsSLo /tmp/steward-setup.sh https://raw.githubusercontent.com/OWNER/REPO/main/dist/steward-setup.sh && bash /tmp/steward-setup.sh
+curl -fsSLo /tmp/steward-setup.sh https://raw.githubusercontent.com/hmdrysr/zeroclaw-steward/main/dist/steward-setup.sh && bash /tmp/steward-setup.sh
 ```
 
 The installer checks itself before running. If it was damaged or changed, it stops and installs nothing. It doesn't run through `curl … | bash`, because it needs a terminal to ask you questions.
@@ -22,7 +22,7 @@ The installer checks itself before running. If it was damaged or changed, it sto
 To check the download yourself first, compare it with [`dist/steward-setup.sh.sha256`](dist/steward-setup.sh.sha256):
 
 ```
-cd /tmp && curl -fsSLO https://raw.githubusercontent.com/OWNER/REPO/main/dist/steward-setup.sh.sha256 && sha256sum -c steward-setup.sh.sha256
+cd /tmp && curl -fsSLO https://raw.githubusercontent.com/hmdrysr/zeroclaw-steward/main/dist/steward-setup.sh.sha256 && sha256sum -c steward-setup.sh.sha256
 ```
 
 ### What the installer does
