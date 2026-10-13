@@ -1,0 +1,49 @@
+# Unpacks a .zip uploaded to the top of this repository, commits its contents,
+# then removes the .zip. Existing files are never deleted. Files the zip also
+# contains are overwritten, and their old versions stay in git history.
+#
+# Put this file at .github/workflows/unpack-zip.yml, upload the .zip,
+# and it runs by itself (or run it by hand from the Actions tab).
+name: Unpack uploaded zip
+on:
+  push:
+    paths: ['*.zip']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unpack and commit
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          zips=(*.zip)
+          if [ ${#zips[@]} -eq 0 ]; then echo "No .zip at the top of the repository; nothing to do."; exit 0; fi
+          if [ ${#zips[@]} -gt 1 ]; then echo "More than one .zip found (${zips[*]}); upload one at a time."; exit 1; fi
+          z="${zips[0]}"
+          tmp="$(mktemp -d)"
+          # unzip refuses entries that would land outside $tmp
+          unzip -q "$z" -d "$tmp"
+          src="$tmp"
+          # a zip holding one top folder: use what's inside it
+          if [ "$(find "$tmp" -mindepth 1 -maxdepth 1 | wc -l)" -eq 1 ] && [ -d "$(find "$tmp" -mindepth 1 -maxdepth 1)" ]; then
+            src="$(find "$tmp" -mindepth 1 -maxdepth 1)"
+          fi
+          # GitHub doesn't let a workflow add workflow files; leave them out.
+          if [ -d "$src/.github/workflows" ]; then
+            echo "::warning::Skipped .github/workflows in the zip. Add those files in the web editor."
+            rm -rf "$src/.github/workflows"
+          fi
+          rm -rf "$src/.git"
+          cp -a "$src"/. ./
+          git rm -q "$z"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then echo "Nothing new in the zip."; exit 0; fi
+          git commit -q -m "Unpack $z"
+          git push
+          echo "Unpacked $z."
