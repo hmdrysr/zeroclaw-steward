@@ -1,3 +1,6 @@
+# This file is the single source of the project's details: name, version,
+# description, author, keywords and links. tools/metadata.py copies them into
+# CITATION.cff, the README, the package version and GitHub's "About" box.
 [build-system]
 requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
@@ -5,10 +8,39 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "steward"
 version = "2.0.0"
-description = "Plan-then-execute local runner for ZeroClaw: policy, approvals, verification, audit"
+description = "Let an AI look after your Linux computer safely. ZeroClaw plans; Steward checks each step, asks your OK, runs it, verifies the result and records every change. Plus ask and explain: Linux in plain English."
+readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
+authors = [{name = "Hamid Yasir"}]
+maintainers = [{name = "Hamid Yasir"}]
+keywords = [
+  "zeroclaw", "ai-agent", "linux", "fedora", "system-administration",
+  "mcp", "sandbox", "bubblewrap", "plain-english", "local-first",
+  "approval", "audit-log", "undo", "small-language-models",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: End Users/Desktop",
+  "Intended Audience :: System Administrators",
+  "License :: OSI Approved :: MIT License",
+  "Natural Language :: English",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: System :: Systems Administration",
+]
 dependencies = ["mcp>=1.20,<2", "tomli-w>=1.0"]
+
+[project.urls]
+Homepage = "https://github.com/hmdrysr/zeroclaw-steward"
+Source = "https://github.com/hmdrysr/zeroclaw-steward"
+Issues = "https://github.com/hmdrysr/zeroclaw-steward/issues"
+Changelog = "https://github.com/hmdrysr/zeroclaw-steward/blob/main/CHANGELOG.md"
+Releases = "https://github.com/hmdrysr/zeroclaw-steward/releases"
 
 [project.optional-dependencies]
 test = ["pytest>=8"]
@@ -18,6 +50,11 @@ steward = "steward.cli:main"
 steward-server = "steward.server:main"
 steward-ask = "steward.cli:ask_main"
 steward-explain = "steward.cli:explain_main"
+
+# Credits shown in the README, CITATION.cff and the installer.
+[tool.steward.credits]
+idea = "Hamid Yasir"
+code = "Claude (Anthropic's AI model)"
 
 [tool.setuptools]
 packages = ["steward", "steward.english"]

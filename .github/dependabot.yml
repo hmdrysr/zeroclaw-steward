@@ -1,0 +1,12 @@
+# Opens a pull request when a GitHub Action or a Python dependency has a new
+# version. The tests run on each one; nothing is merged without your review.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+  - package-ecosystem: pip
+    directory: /steward
+    schedule:
+      interval: monthly

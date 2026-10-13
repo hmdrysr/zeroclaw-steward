@@ -1,6 +1,14 @@
 # ZeroClaw + Steward
 
+[![Tests](https://github.com/hmdrysr/zeroclaw-steward/actions/workflows/tests.yml/badge.svg)](https://github.com/hmdrysr/zeroclaw-steward/actions/workflows/tests.yml)
+[![Latest release](https://img.shields.io/github/v/release/hmdrysr/zeroclaw-steward)](https://github.com/hmdrysr/zeroclaw-steward/releases/latest)
+[![Licence: MIT](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
+
 Let an AI look after your Linux computer without handing it the keys.
+
+<!-- authors -->
+Idea and direction by Hamid Yasir. Code written with Claude (Anthropic's AI model).
+<!-- /authors -->
 
 - **[ZeroClaw](https://github.com/zeroclaw-labs/zeroclaw)** is the AI agent you chat with. It works with any model provider.
 - **Steward** is the only way that AI can change your computer. The AI hands Steward a complete plan. Steward checks every step against your real system, asks for your OK on anything risky, runs the steps, checks the result and keeps a record of everything. Deleted files go to a trash you can restore from; edited files keep their old version; changes can be undone.
@@ -14,15 +22,15 @@ Made for Fedora; also works on Debian/Ubuntu, Arch and openSUSE families. Linux 
 Open a terminal and paste:
 
 ```
-curl -fsSLo /tmp/steward-setup.sh https://raw.githubusercontent.com/hmdrysr/zeroclaw-steward/main/dist/steward-setup.sh && bash /tmp/steward-setup.sh
+curl -fsSLo /tmp/steward-setup.sh https://github.com/hmdrysr/zeroclaw-steward/releases/latest/download/steward-setup.sh && bash /tmp/steward-setup.sh
 ```
 
 The installer checks itself before running. If it was damaged or changed, it stops and installs nothing. It doesn't run through `curl … | bash`, because it needs a terminal to ask you questions.
 
-To check the download yourself first, compare it with [`dist/steward-setup.sh.sha256`](dist/steward-setup.sh.sha256):
+This always gets the latest release, which is published only after the tests pass. To check the download against the release's published fingerprint:
 
 ```
-cd /tmp && curl -fsSLO https://raw.githubusercontent.com/hmdrysr/zeroclaw-steward/main/dist/steward-setup.sh.sha256 && sha256sum -c steward-setup.sh.sha256
+cd /tmp && curl -fsSLO https://github.com/hmdrysr/zeroclaw-steward/releases/latest/download/steward-setup.sh.sha256 && sha256sum -c steward-setup.sh.sha256
 ```
 
 ### What the installer does
@@ -81,9 +89,10 @@ This removes the programs and Steward's entries in ZeroClaw's config. It keeps y
 | `steward/` | Steward: source, tests, its own [README](steward/README.md) and [test report](steward/TEST-REPORT.md) |
 | `setup.sh`, `uninstall-all.sh` | Install and remove ZeroClaw + Steward |
 | `zeroclaw/` | ZeroClaw's official `SHA256SUMS` and licences. The binary itself is downloaded at install time. |
-| `dist/` | The one-file installer, built from this repository by `tools/build-installer.sh` |
+| `dist/` | The one-file installer, rebuilt automatically from this repository by `tools/build-installer.sh` |
+| `tools/` | Installer build, and `metadata.py`, which keeps version, author and links in step with `steward/pyproject.toml` |
 | `tests/` | Whole-install test on a fresh user account (needs root; use a throwaway machine or container) |
-| `ci/` | GitHub Actions workflow for tests (see [CONTRIBUTING](CONTRIBUTING.md)) |
+| `ci/` | The GitHub Actions workflow: tests, installer rebuild, releases (see [CONTRIBUTING](CONTRIBUTING.md)) |
 
 ## Safety and honesty
 
@@ -94,6 +103,10 @@ Read [`steward/TEST-REPORT.md`](steward/TEST-REPORT.md) for what was tested, whe
 
 Please report what happens on your machine.
 
+## Author and citation
+
+The idea and direction are **Hamid Yasir**'s. The code was written with **Claude**, Anthropic's AI model, working from his direction. If you use it in your work, GitHub's "Cite this repository" button gives a citation from [CITATION.cff](CITATION.cff).
+
 ## Licence
 
-Steward and the scripts in this repository: MIT ([LICENSE](LICENSE)). ZeroClaw: MIT or Apache-2.0, at your option, by its authors ([zeroclaw/](zeroclaw/)).
+Steward and the scripts in this repository: MIT, © Hamid Yasir ([LICENSE](LICENSE)). ZeroClaw: MIT or Apache-2.0, at your option, by its authors ([zeroclaw/](zeroclaw/)).

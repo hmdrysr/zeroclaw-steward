@@ -27,13 +27,7 @@ The tests use fake versions of `systemctl`, `dnf`, `zenity`, `pkexec` and the ot
 
 - `python -m pytest -q tests` passes.
 - New behaviour has a test, including the case where it should refuse.
-- If you changed anything the installer ships, rebuild it and commit `dist/`:
-
-  ```
-  bash tools/build-installer.sh
-  ```
-
-  CI fails if `dist/` is out of date. The build is reproducible: the same source gives the same file, byte for byte.
+- You don't need to rebuild `dist/` or touch `CITATION.cff`. Once your change is merged, the workflow does both.
 
 - **Changing the ZeroClaw version:**
   - Update `VER` and `PINNED_SHA` in `setup.sh` and the files in `zeroclaw/`.
@@ -48,14 +42,45 @@ The tests use fake versions of `systemctl`, `dnf`, `zenity`, `pkexec` and the ot
 sudo bash tests/fresh_setup.sh "$PWD" "$PWD/dist/steward-setup.sh"
 ```
 
-## Turning on CI
+## Project details
 
-GitHub doesn't let workflows add workflow files, so the test workflow is kept in `ci/tests.yml`. To turn it on:
+`steward/pyproject.toml` is the one place for the project's name, version, description, author, keywords and links. Don't edit copies of these elsewhere. The workflow copies them into:
+
+- `CITATION.cff`
+- the README's credit line and paths
+- the package version
+- the installer's header
+- the repository's About box
+
+To check by hand:
+
+```
+python3 tools/metadata.py check
+```
+
+## Releasing
+
+1. Raise `version` in `steward/pyproject.toml`.
+2. Add a section to `CHANGELOG.md` headed `## <version> (YYYY-MM-DD)`.
+3. Push to `main`.
+
+Once the tests pass, the workflow rebuilds the installer and publishes a GitHub release with it, its SHA-256 and the changelog notes. The install line in the README always gets the latest release.
+
+## Turning on the workflow (maintainers)
+
+GitHub doesn't let a workflow add workflow files, so the workflow is kept in `ci/tests.yml`. To turn it on:
 
 1. Create `.github/workflows/tests.yml` in the GitHub web editor.
 2. Paste in the contents of `ci/tests.yml` and commit.
 
-It runs the tests in a Fedora container, checks that `dist/` is current, and checks the shell scripts' syntax.
+If `ci/tests.yml` changes later, paste it in again.
+
+The workflow can't change the repository's About box by itself; GitHub reserves that for an admin token. To let it:
+
+1. Create a fine-grained personal access token at <https://github.com/settings/personal-access-tokens/new>. Give it access to this repository only, with **Administration: Read and write**.
+2. Add it under **Settings → Secrets and variables → Actions → New repository secret**, named `ABOUT_TOKEN`.
+
+Without the token, everything else still runs.
 
 ## Reporting a security problem
 

@@ -9,7 +9,10 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 ROOT="$PWD"
-VERSION="$(sed -n 's/^version = "\(.*\)"/\1/p' steward/pyproject.toml)"
+VERSION="$(python3 -c 'import tomllib;print(tomllib.load(open("steward/pyproject.toml","rb"))["project"]["version"])')"
+AUTHORS="$(python3 -c 'import tomllib;print(" and ".join(a["name"] for a in tomllib.load(open("steward/pyproject.toml","rb"))["project"]["authors"]))')"
+CREDIT="$(python3 tools/metadata.py credit)"
+SOURCE="$(python3 -c 'import tomllib;print(tomllib.load(open("steward/pyproject.toml","rb"))["project"]["urls"]["Source"])')"
 STAMP="@1767225600"   # 2026-01-01 00:00 UTC, in the past so tar never warns
 OUT="dist/steward-setup.sh"
 CHECK=0; [ "${1:-}" = "--check" ] && CHECK=1
@@ -18,7 +21,7 @@ TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 mkdir -p "$TMP/zeroclaw-steward"
 # Only what the installer needs; never the ZeroClaw binary (setup.sh downloads
 # it from the official release and checks it against a pinned SHA-256).
-for p in README.md setup.sh uninstall-all.sh steward tests zeroclaw; do
+for p in README.md LICENSE setup.sh uninstall-all.sh steward tests zeroclaw; do
   cp -a "$p" "$TMP/zeroclaw-steward/"
 done
 find "$TMP" \( -name '__pycache__' -o -name '.pytest_cache' \) -prune -exec rm -rf {} +
@@ -32,6 +35,8 @@ SHA="$(sha256sum "$TMP/p.tgz" | cut -d' ' -f1)"
 cat <<EOF
 #!/usr/bin/env bash
 # ZeroClaw + Steward installer (self-contained). Version $VERSION.
+# $CREDIT
+# MIT licence, (c) $AUTHORS. Source: $SOURCE
 #
 # What this file does, in order:
 #   1. Checks its own embedded package against the SHA-256 written below.

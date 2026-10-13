@@ -1,0 +1,29 @@
+# Made from steward/pyproject.toml by tools/metadata.py; edit that file, not this one.
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below. Idea by Hamid Yasir; code written with Claude (Anthropic's AI model)."
+type: software
+title: "ZeroClaw + Steward"
+abstract: "Let an AI look after your Linux computer safely. ZeroClaw plans; Steward checks each step, asks your OK, runs it, verifies the result and records every change. Plus ask and explain: Linux in plain English."
+authors:
+  - given-names: "Hamid"
+    family-names: "Yasir"
+version: "2.0.0"
+date-released: 2026-10-14
+license: MIT
+repository-code: https://github.com/hmdrysr/zeroclaw-steward
+url: https://github.com/hmdrysr/zeroclaw-steward
+keywords:
+  - zeroclaw
+  - ai-agent
+  - linux
+  - fedora
+  - system-administration
+  - mcp
+  - sandbox
+  - bubblewrap
+  - plain-english
+  - local-first
+  - approval
+  - audit-log
+  - undo
+  - small-language-models
