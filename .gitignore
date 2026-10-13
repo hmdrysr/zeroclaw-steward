@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+*.egg-info/
+build/
+# ZeroClaw's release binary is downloaded by setup.sh, never committed
+zeroclaw/*.tar.gz
+zeroclaw/*.part

@@ -1,0 +1,29 @@
+# To turn on: create .github/workflows/tests.yml with this content (see CONTRIBUTING.md).
+name: Tests
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    # Fedora, privileged so bubblewrap can create its sandboxes.
+    container:
+      image: fedora:43
+      options: --privileged
+    steps:
+      - name: System packages
+        run: dnf -y -q install git python3 python3-pip bubblewrap tar gzip findutils procps-ng util-linux diffutils
+      - uses: actions/checkout@v4
+      - name: Shell syntax
+        run: for f in setup.sh uninstall-all.sh steward/install.sh steward/uninstall.sh tools/build-installer.sh dist/steward-setup.sh; do bash -n "$f"; done
+      - name: Installer in dist/ matches the source
+        run: bash tools/build-installer.sh --check
+      - name: Steward tests
+        run: |
+          cd steward
+          python3 -m venv .venv
+          .venv/bin/pip install -q '.[test]'
+          .venv/bin/python -m pytest -q -p no:cacheprovider tests

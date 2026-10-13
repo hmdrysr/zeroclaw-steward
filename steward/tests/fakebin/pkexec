@@ -1,0 +1,5 @@
+#!/bin/sh
+# Test double for pkexec. FAKE_PKEXEC=deny simulates a dismissed/failed password prompt.
+echo "$*" >> "$FAKE_STATE/pkexec.log"
+if [ "$FAKE_PKEXEC" = "deny" ]; then echo "Error executing command as another user: Not authorized" >&2; exit 126; fi
+exec "$@"

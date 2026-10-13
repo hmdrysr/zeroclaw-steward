@@ -1,0 +1,3 @@
+#!/bin/sh
+# Launch Steward's MCP server from the source tree (tests only).
+exec "${STEWARD_PYTHON:-python3}" -m steward.server "$@"

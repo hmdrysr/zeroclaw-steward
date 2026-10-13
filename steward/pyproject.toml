@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "steward"
+version = "2.0.0"
+description = "Plan-then-execute local runner for ZeroClaw: policy, approvals, verification, audit"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+dependencies = ["mcp>=1.20,<2", "tomli-w>=1.0"]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.scripts]
+steward = "steward.cli:main"
+steward-server = "steward.server:main"
+steward-ask = "steward.cli:ask_main"
+steward-explain = "steward.cli:explain_main"
+
+[tool.setuptools]
+packages = ["steward", "steward.english"]

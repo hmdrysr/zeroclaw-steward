@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+"""Test double for dnf, rpm, zypper, apt-get, dpkg-query and pacman sharing one fake
+package database in $FAKE_STATE/pkgs.json. 'foo-app' depends on 'libfoo'.
+Package names starting with 'nosuch' do not exist in the repositories."""
+import json, os, sys
+f = os.path.join(os.environ["FAKE_STATE"], "pkgs.json")
+s = set(json.load(open(f))) if os.path.exists(f) else {"htop", "cowsay", "libfoo", "foo-app", "bash", "glibc", "libc6"}
+save = lambda: json.dump(sorted(s), open(f, "w"))
+if not os.path.exists(f):
+    save()
+me = os.path.basename(sys.argv[0]); args = sys.argv[1:]
+pos = [a for a in args if not a.startswith("-") and not a.startswith("%") and "=" not in a]
+deps = {"libfoo": ["foo-app"]}
+
+def log(msg):
+    open(os.path.join(os.environ["FAKE_STATE"], "pkgops.log"), "a").write(msg + "\n")
+
+def change(op, pkgs):
+    for p in pkgs:
+        if p.startswith("nosuch"):
+            print(f"No match for argument: {p}" if me in ("dnf", "zypper") else
+                  f"E: Unable to locate package {p}" if me == "apt-get" else
+                  f"error: target not found: {p}", file=sys.stderr); sys.exit(1 if me != "apt-get" else 100)
+    for p in pkgs:
+        if op == "install": s.add(p)
+        else:
+            s.discard(p)
+            if me != "pacman":
+                for d in deps.get(p, []): s.discard(d)
+    save(); print(f"{op}: {' '.join(pkgs)}\nComplete!")
+
+if me == "rpm":
+    if "-qa" in args:
+        for p in sorted(s): print(f"{p}-1.0-1.fc43.x86_64")
+    elif "--whatrequires" in args:
+        for p in pos:
+            ds = [d for d in deps.get(p, []) if d in s]
+            print("\n".join(ds) if ds else f"no package requires {p}")
+    else:
+        rc = 0
+        for p in pos:
+            if p in s: print(p)
+            else: print(f"package {p} is not installed"); rc = 1
+        sys.exit(rc)
+elif me == "dnf":
+    op = pos[0]
+    if op in ("upgrade", "update", "clean"):
+        log(f"dnf {op}"); print("Complete!"); sys.exit(0)
+    change(op, pos[1:])
+elif me == "zypper":
+    op = pos[0]
+    if op in ("update", "dist-upgrade", "dup", "clean"):
+        log(f"zypper {op}"); print("done"); sys.exit(0)
+    change("install" if op in ("install", "in") else "remove", pos[1:])
+elif me == "dpkg-query":
+    fmt = next((a for a in args if a.startswith("-f")), "")
+    names = pos[1:] if pos and pos[0] == "-W" else pos
+    if not names:
+        for p in sorted(s): print(f"{p}=1.0 ii ")
+        sys.exit(0)
+    rc = 0
+    for p in names:
+        if p in s: print(f"{p} ii ")
+        else: print(f"dpkg-query: no packages found matching {p}", file=sys.stderr); rc = 1
+    sys.exit(rc)
+elif me == "apt-get":
+    op = pos[0]; pk = pos[1:]
+    if op == "upgrade" and ("-s" in args or "--simulate" in args):
+        print("0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded."); sys.exit(0)
+    if op in ("update", "upgrade", "clean"):
+        log(f"apt-get {op}"); print("Done"); sys.exit(0)
+    if "-s" in args or "--simulate" in args:
+        if op == "remove":
+            for p in pk:
+                if p in s: print(f"Remv {p} [1.0]")
+                for d in deps.get(p, []):
+                    if d in s: print(f"Remv {d} [1.0]")
+        sys.exit(0)
+    change(op, pk)
+elif me == "pacman":
+    if args and args[0] == "-Q":
+        if not pos:
+            for p in sorted(s): print(f"{p} 1.0-1")
+            sys.exit(0)
+        rc = 0
+        for p in pos:
+            if p in s: print(f"{p} 1.0-1")
+            else: print(f"error: package '{p}' was not found", file=sys.stderr); rc = 1
+        sys.exit(rc)
+    if args and args[0] == "-Qu":
+        sys.exit(1)
+    if args and args[0] == "-Qi":
+        p = pos[0]
+        if p not in s: print(f"error: package '{p}' was not found", file=sys.stderr); sys.exit(1)
+        rb = [d for d in deps.get(p, []) if d in s]
+        print(f"Name            : {p}\nRequired By     : {'  '.join(rb) if rb else 'None'}"); sys.exit(0)
+    if "-Syu" in args or "-Sc" in args:
+        log("pacman " + " ".join(args)); print("done"); sys.exit(0)
+    if "-S" in args: change("install", pos)
+    elif "-R" in args:
+        for p in pos:
+            if any(d in s for d in deps.get(p, [])):
+                print(f"error: failed to prepare transaction (could not satisfy dependencies)\n:: removing {p} breaks dependency '{p}' required by {deps[p][0]}", file=sys.stderr); sys.exit(1)
+        change("remove", pos)

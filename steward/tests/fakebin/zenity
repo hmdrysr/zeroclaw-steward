@@ -1,0 +1,10 @@
+#!/bin/sh
+# Test double for zenity. FAKE_ZENITY = approve | decline | timeout | crash | hang
+for a in "$@"; do case "$a" in --filename=*) cp "${a#--filename=}" "$FAKE_STATE/zenity.txt";; esac; done
+echo "$*" >> "$FAKE_STATE/zenity.log"
+case "$FAKE_ZENITY" in
+  approve) exit 0;; decline) exit 1;; timeout) exit 5;;
+  crash) echo "Gtk-WARNING: cannot open display" >&2; exit 255;;
+  hang) sleep 600;;
+  *) exit 1;;
+esac
