@@ -2,7 +2,7 @@
 # description, author, keywords and links. tools/metadata.py copies them into
 # CITATION.cff, the README, the package version and GitHub's "About" box.
 [build-system]
-requires = ["setuptools>=61"]
+requires = ["setuptools>=84.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
